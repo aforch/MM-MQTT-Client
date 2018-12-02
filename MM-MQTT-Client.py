@@ -14,6 +14,8 @@ config = ConfigParser(delimiters=('=', ))
 config.optionxform = str
 config.read('MM-MQTT.ini')
 auth = {'username':config.get('broker','mqtt_user'), 'password':config.get('broker','mqtt_passwd')}
+topics = {'status':config.get('homeassistant','status_topic'), 'set':config.get('homeassistant','set_topic')}
+broker = {'host':config.get('broker','mqtt_server'),'port':int(config.get('broker','mqtt_port'))}
     
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -27,22 +29,28 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print(str(msg.payload))
     if 'ON' in str(msg.payload):
-        call(['vcgencmd', 'display_power', '1'])
-        update_status("on")
-        #print("On")
-        
+        try:
+            call(['vcgencmd', 'display_power', '1'])
+            update_status("on")
+            #print("On")
+        except:
+            update_status("off")
     elif "OFF" in str(msg.payload):
-        call(['vcgencmd', 'display_power', '0'])
-        update_status("off")
-        #print("Off")
-
+        try:
+            call(['vcgencmd', 'display_power', '0'])
+            update_status("off")
+            #print("Off")
+        except:
+            update_status("on")
+            
+# Publish back 
 def update_status(status):
     if status == "on":
-        print("publishing status")
-        publish.single(config.get('homeassistant', 'status_topic'), "ON", hostname=config.get('broker','mqtt_server'),auth=auth)
+        #print("publishing status")
+        publish.single(topics['status'], "ON", hostname=broker['host'] ,auth=auth)
     elif status == "off":
-        print("publishing status")
-        publish.single(config.get('homeassistant', 'status_topic'), "OFF", hostname=config.get('broker','mqtt_server'),auth=auth)
+        #print("publishing status")
+        publish.single(topics['status'], "OFF", hostname=broker['host'],auth=auth)
         
 if __name__== "__main__":
     
@@ -54,7 +62,7 @@ if __name__== "__main__":
     client.username_pw_set(auth['username'], auth['password'])
 
     #MQTT Connection and loop
-    client.connect(config.get('broker', 'mqtt_server'), 1883, 60)
+    client.connect(broker['host'], broker['port'], 60)
 
     client.loop_forever()
 

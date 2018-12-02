@@ -1,0 +1,18 @@
+[Unit]
+Description=MQTT Client
+Documentation=https://github.com/aforch/MM-MQTT-Client/
+After=multi-user.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi
+ExecStart=/usr/bin/python /home/pi/MM-MQTT-Client.py
+StandardOutput=null
+StandardError=journal
+Environment=PYTHONUNBUFFERED=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
