@@ -1,0 +1,8 @@
+switch:
+  - platform: mqtt
+    state_topic: "home/topic"
+    command_topic: "home/topic/set"
+    payload_on: "ON"
+    payload_off: "OFF"
+    state_on: "ON"
+    state_off: "OFF"
