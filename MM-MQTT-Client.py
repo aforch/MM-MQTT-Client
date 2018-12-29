@@ -16,6 +16,7 @@ config.read('MM-MQTT.ini')
 auth = {'username':config.get('broker','mqtt_user'), 'password':config.get('broker','mqtt_passwd')}
 topics = {'status':config.get('homeassistant','status_topic'), 'set':config.get('homeassistant','set_topic')}
 broker = {'host':config.get('broker','mqtt_server'),'port':int(config.get('broker','mqtt_port'))}
+retainFlag = True
     
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -31,26 +32,22 @@ def on_message(client, userdata, msg):
     if 'ON' in str(msg.payload):
         try:
             call(['vcgencmd', 'display_power', '1'])
-            update_status("on")
+            update_status("ON")
             #print("On")
         except:
-            update_status("off")
+            update_status("OFF")
     elif "OFF" in str(msg.payload):
         try:
             call(['vcgencmd', 'display_power', '0'])
-            update_status("off")
+            update_status("OFF")
             #print("Off")
         except:
-            update_status("on")
+            update_status("ON")
             
 # Publish back 
 def update_status(status):
-    if status == "on":
-        #print("publishing status")
-        publish.single(topics['status'], "ON", hostname=broker['host'] ,auth=auth)
-    elif status == "off":
-        #print("publishing status")
-        publish.single(topics['status'], "OFF", hostname=broker['host'],auth=auth)
+    publish.single(topics['status'], status, retain=retainFlag, hostname=broker['host'] ,auth=auth)
+   
         
 if __name__== "__main__":
     
