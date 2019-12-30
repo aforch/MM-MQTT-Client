@@ -14,7 +14,7 @@ config = ConfigParser(delimiters=('=', ))
 config.optionxform = str
 config.read('MM-MQTT.ini')
 auth = {'username':config.get('broker','mqtt_user'), 'password':config.get('broker','mqtt_passwd')}
-topics = {'status':config.get('homeassistant','status_topic'), 'set':config.get('homeassistant','set_topic')}
+topics = {'status':config.get('mqtt_topic','status_topic'), 'set':config.get('mqtt_topic','set_topic')}
 broker = {'host':config.get('broker','mqtt_server'),'port':int(config.get('broker','mqtt_port'))}
 retainFlag = True
     
@@ -24,7 +24,7 @@ def on_connect(client, userdata, flags, rc):
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
-    client.subscribe(config.get('homeassistant', 'set_topic'))
+    client.subscribe(config.get('mqtt_topic', 'set_topic'))
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):

@@ -4,6 +4,6 @@ mqtt_port=1883
 mqtt_user=user
 mqtt_passwd=password
 
-[homeassistant]
+[mqtt_topic]
 status_topic=home/topic
 set_topic=home/topic/set
